@@ -1,12 +1,14 @@
 [
   {
-    "name": "Elliot",
-    "role": "Reader",
+    "username": "Elliot",
+    "password": "adminpass",
+    "role": "admin",
     "age": 23
   },
   {
-    "name": "Fraser",
-    "role": "Author",
+    "username": "Fraser",
+    "password": "userpass",
+    "role": "user",
     "age": 17
   }
 ]

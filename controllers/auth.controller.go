@@ -3,19 +3,17 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/YahyaCengiz/go_deneme/CRUD/models"
 	"github.com/YahyaCengiz/go_deneme/CRUD/services"
 	"github.com/YahyaCengiz/go_deneme/CRUD/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-type LoginInput struct {
-    Username string `json:"username"`
-    Password string `json:"password"`
-}
 
 func Login(c *gin.Context) {
-    var input LoginInput
+
+    var input models.LoginInput
     if err := c.ShouldBindJSON(&input); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return

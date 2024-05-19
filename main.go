@@ -21,11 +21,14 @@ func main() {
 
         // Todos routes
         authorized.GET("/todos", controllers.GetTodos)
-        authorized.GET("/todos/:id", controllers.GetTodoByID)
+        authorized.GET("/todos/:todoId", controllers.GetTodoByID)
+        authorized.GET("/todos/:todoId/messages/:messageId", controllers.GetTodoMessageByID)
         authorized.POST("/todos", controllers.CreateTodoList)
-        authorized.POST("/todos/:id/messages", controllers.CreateTodoMessage)
-        authorized.PUT("/todos/:id", controllers.UpdateTodo)
-        authorized.DELETE("/todos/:id", controllers.DeleteTodo)
+        authorized.POST("/todos/:todoId/messages", controllers.CreateTodoMessage)
+        authorized.PUT("/todos/:todoId", controllers.UpdateTodo)
+        authorized.PUT("/todos/:todoId/messages/:messageId", controllers.UpdateTodoMessage)
+        authorized.DELETE("/todos/:todoId", controllers.DeleteTodo)
+        authorized.DELETE("/todos/:todoId/messages/:messageId", controllers.DeleteTodoMessage)
     }
 
     r.Run(":3000")

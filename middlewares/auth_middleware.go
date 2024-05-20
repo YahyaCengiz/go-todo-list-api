@@ -17,7 +17,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		token, err := jwt.Parse(authHeader, func(token *jwt.Token) (interface{}, error) {
-			// Validate token signing method etc.
 			return []byte("deneme"), nil
 		})
 

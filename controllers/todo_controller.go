@@ -15,7 +15,6 @@ import (
 var todos []models.Todo
 
 func init() {
-    // Read todos from JSON file
     file, err := os.Open("todos.JSON")
     if err != nil {
         panic(err)
@@ -41,7 +40,6 @@ func GetTodos(c *gin.Context) {
             }
             todo.Messages = visibleMessages
 
-            // Calculate completion percentage
             var completedMessages int
             for _, message := range todo.Messages {
                 if message.IsCompleted {
@@ -120,7 +118,6 @@ func CreateTodoList(c *gin.Context) {
         return
     }
     
-    // Extract username from JWT token
     username, exists := c.Get("username")
     if !exists {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "missing username in JWT token"})
@@ -151,19 +148,16 @@ func CreateTodoMessage(c *gin.Context) {
     role := c.MustGet("role").(string)
     username := c.MustGet("username").(string)
 
-    // Find the todo list
+
     for i, todo := range todos {
         if todo.ID == todoID {
-            // Check permissions
             if role == "admin" || todo.UserID == username {
-                // Append the new message
                 newMessage.ID = generateMessageID(todo.Messages)
                 newMessage.CreatedAt = time.Now()
                 newMessage.UpdatedAt = time.Now()
                 todo.Messages = append(todo.Messages, newMessage)
                 todo.UpdatedAt = time.Now()
                 todos[i] = todo
-                // Save the updated todos
                 saveTodos()
                 c.JSON(http.StatusCreated, newMessage)
                 return
@@ -190,8 +184,8 @@ func UpdateTodo(c *gin.Context) {
     for i, todo := range todos {
         if todo.ID == id {
             if role == "admin" || todo.UserID == username {
-                updatedTodo.UserID = todo.UserID // Preserve original user ID
-                updatedTodo.CreatedAt = todo.CreatedAt // Preserve original creation date
+                updatedTodo.UserID = todo.UserID 
+                updatedTodo.CreatedAt = todo.CreatedAt 
                 updatedTodo.UpdatedAt = time.Now()
                 todos[i] = updatedTodo
                 saveTodos()
@@ -222,8 +216,8 @@ func UpdateTodoMessage(c *gin.Context) {
             if role == "admin" || todo.UserID == username {
                 for j, message := range todo.Messages {
                     if message.ID == messageID {
-                        updatedMessage.ID = message.ID // Preserve original ID
-                        updatedMessage.CreatedAt = message.CreatedAt // Preserve original creation date
+                        updatedMessage.ID = message.ID 
+                        updatedMessage.CreatedAt = message.CreatedAt 
                         updatedMessage.UpdatedAt = time.Now()
                         todo.Messages[j] = updatedMessage
                         todo.UpdatedAt = time.Now()

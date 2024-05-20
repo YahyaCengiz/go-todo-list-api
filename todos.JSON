@@ -3,7 +3,7 @@
     "id": "todo1",
     "userId": "Fraser",
     "created_at": "2024-05-10T12:00:00Z",
-    "updated_at": "2024-05-20T12:59:20.3814446+03:00",
+    "updated_at": "2024-05-20T16:49:04.3311236+03:00",
     "completion_percentage": 50,
     "messages": [
       {
@@ -17,8 +17,8 @@
       {
         "id": "message2",
         "created_at": "2024-05-10T12:00:00Z",
-        "updated_at": "2024-05-10T12:00:00Z",
-        "content": "Task 2",
+        "updated_at": "2024-05-20T16:49:04.3311236+03:00",
+        "content": "updated",
         "is_completed": true
       }
     ]

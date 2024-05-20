@@ -15,3 +15,5 @@ User todo listesini veya todo mesajını sildiğinde, JSON dosyasındaki kaydı 
 Kullanıcı, listedeki bir todo'yu tamamlamak için update route'unu kullanmalı. updateTodoMessage fonksiyonu todo message'ın içeriğini ve tamamlanma durumunu  değiştirmek için kullanılmakta.
 
 CRUD işlemleri ve login işlemi için gerekli route'lar main.go dosyasında bulunmakta.
+
+Projeyi başlatmak için go.mod ve go.sum dosyalarındaki dependency'leri indirdikten sonra CompileDaemon -command="./<directory_adı>"  komutunu kullanabilirsiniz.

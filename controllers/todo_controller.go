@@ -30,30 +30,36 @@ func GetTodos(c *gin.Context) {
     role := c.MustGet("role").(string)
     username := c.MustGet("username").(string)
 
-    if role == "admin" {
-        c.JSON(http.StatusOK, todos)
-    } else {
-        var userTodos []models.Todo
-        for _, todo := range todos {
-            if todo.UserID == username {
-                // Calculate completion percentage
-                var completedMessages int
-                for _, message := range todo.Messages {
-                    if message.IsCompleted {
-                        completedMessages++
-                    }
+    var visibleTodos []models.Todo
+    for _, todo := range todos {
+        if todo.DeletedAt == nil && (role == "admin" || todo.UserID == username) {
+            var visibleMessages []models.Message
+            for _, message := range todo.Messages {
+                if message.DeletedAt == nil {
+                    visibleMessages = append(visibleMessages, message)
                 }
-                completionPercentage := (completedMessages * 100) / len(todo.Messages)
-
-                // Update completion percentage in todo struct
-                todo.CompletionPercentage = completionPercentage
-
-                userTodos = append(userTodos, todo)
             }
+            todo.Messages = visibleMessages
+
+            // Calculate completion percentage
+            var completedMessages int
+            for _, message := range todo.Messages {
+                if message.IsCompleted {
+                    completedMessages++
+                }
+            }
+            if len(todo.Messages) > 0 {
+                completionPercentage := (completedMessages * 100) / len(todo.Messages)
+                todo.CompletionPercentage = completionPercentage
+            }
+
+            visibleTodos = append(visibleTodos, todo)
         }
-        c.JSON(http.StatusOK, userTodos)
     }
+
+    c.JSON(http.StatusOK, visibleTodos)
 }
+
 
 func GetTodoByID(c *gin.Context) {
     id := c.Param("todoId")
@@ -61,8 +67,15 @@ func GetTodoByID(c *gin.Context) {
     username := c.MustGet("username").(string)
 
     for _, todo := range todos {
-        if todo.ID == id {
+        if todo.ID == id && todo.DeletedAt == nil {
             if role == "admin" || todo.UserID == username {
+                var visibleMessages []models.Message
+                for _, message := range todo.Messages {
+                    if message.DeletedAt == nil {
+                        visibleMessages = append(visibleMessages, message)
+                    }
+                }
+                todo.Messages = visibleMessages
                 c.JSON(http.StatusOK, todo)
                 return
             }
@@ -73,6 +86,7 @@ func GetTodoByID(c *gin.Context) {
     c.JSON(http.StatusNotFound, gin.H{"message": "Todo not found"})
 }
 
+
 func GetTodoMessageByID(c *gin.Context) {
     todoID := c.Param("todoId")
     messageID := c.Param("messageId")
@@ -80,10 +94,10 @@ func GetTodoMessageByID(c *gin.Context) {
     username := c.MustGet("username").(string)
 
     for _, todo := range todos {
-        if todo.ID == todoID {
+        if todo.ID == todoID && todo.DeletedAt == nil {
             if role == "admin" || todo.UserID == username {
                 for _, message := range todo.Messages {
-                    if message.ID == messageID {
+                    if message.ID == messageID && message.DeletedAt == nil {
                         c.JSON(http.StatusOK, message)
                         return
                     }
@@ -97,6 +111,7 @@ func GetTodoMessageByID(c *gin.Context) {
     }
     c.JSON(http.StatusNotFound, gin.H{"message": "Todo not found"})
 }
+
 
 func CreateTodoList(c *gin.Context) {
     var newTodo models.Todo
@@ -239,11 +254,12 @@ func DeleteTodoMessage(c *gin.Context) {
             if role == "admin" || todo.UserID == username {
                 for j, message := range todo.Messages {
                     if message.ID == messageID {
-                        todo.Messages = append(todo.Messages[:j], todo.Messages[j+1:]...)
-                        todo.UpdatedAt = time.Now()
+                        now := time.Now()
+                        todo.Messages[j].DeletedAt = &now
+                        todo.UpdatedAt = now
                         todos[i] = todo
                         saveTodos()
-                        c.JSON(http.StatusOK, gin.H{"message": "Message deleted"})
+                        c.JSON(http.StatusOK, gin.H{"message": "Message marked as deleted"})
                         return
                     }
                 }
@@ -258,16 +274,17 @@ func DeleteTodoMessage(c *gin.Context) {
 }
 
 func DeleteTodo(c *gin.Context) {
-    id := c.Param("id")
+    id := c.Param("todoId")
     role := c.MustGet("role").(string)
     username := c.MustGet("username").(string)
 
     for i, todo := range todos {
         if todo.ID == id {
             if role == "admin" || todo.UserID == username {
-                todos = append(todos[:i], todos[i+1:]...)
+                now := time.Now()
+                todos[i].DeletedAt = &now
                 saveTodos()
-                c.JSON(http.StatusOK, gin.H{"message": "Todo deleted"})
+                c.JSON(http.StatusOK, gin.H{"message": "Todo marked as deleted"})
                 return
             }
             c.JSON(http.StatusForbidden, gin.H{"message": "You don't have permission to delete this todo"})
@@ -276,6 +293,7 @@ func DeleteTodo(c *gin.Context) {
     }
     c.JSON(http.StatusNotFound, gin.H{"message": "Todo not found"})
 }
+
 
 func saveTodos() {
     file, err := os.Create("todos.JSON")
